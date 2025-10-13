@@ -11,6 +11,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.models import User, UserRole
+from app.utils import get_db
 
 
 JWT_SECRET = os.getenv("JWT_SECRET", "your_secret_key")
@@ -71,7 +72,7 @@ def decode_token(token: str) -> dict:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = None) -> User:
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)) -> User:
     """
     Dependency function to get current authenticated user from JWT token.
     Validates token and retrieves user from database.

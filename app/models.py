@@ -25,7 +25,7 @@ class User(Base):
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(255), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
-    role = Column(Enum(UserRole), nullable=False, default=UserRole.USER)
+    role = Column(Enum(UserRole, values_callable=lambda x: [e.value for e in x]), nullable=False, default=UserRole.USER)
     created_at = Column(TIMESTAMP, nullable=False, default=datetime.utcnow)
     
     files = relationship("File", back_populates="owner")

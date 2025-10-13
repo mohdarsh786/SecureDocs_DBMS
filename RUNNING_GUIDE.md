@@ -10,7 +10,7 @@
 
 1. **Navigate to project directory**
    ```powershell
-   cd "e:\Project Y"
+   cd "e:\SecureDocs_DBMS"
    ```
 
 2. **Start all services**
@@ -69,7 +69,7 @@
 
 4. **Run the API server**
    ```powershell
-   cd "e:\Project Y"
+   cd "e:\SecureDocs_DBMS"
    uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
    ```
 

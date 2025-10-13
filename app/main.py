@@ -108,8 +108,8 @@ async def login(request: LoginRequest, req: Request, db: Session = Depends(get_d
 
 @app.post("/api/upload")
 async def upload_file(
+    req: Request,
     file: UploadFile = FastAPIFile(...),
-    req: Request = None,
     user: User = Depends(require_permission("upload")),
     db: Session = Depends(get_db)
 ):
