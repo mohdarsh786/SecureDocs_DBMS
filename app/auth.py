@@ -3,6 +3,7 @@ Authentication and authorization module for SecureDocs.
 Handles JWT-based authentication, password hashing, and RBAC middleware.
 """
 import os
+import re
 import bcrypt
 import jwt
 from datetime import datetime, timedelta
@@ -20,6 +21,51 @@ JWT_EXPIRATION_HOURS = 24
 REFRESH_TOKEN_DAYS = 7
 
 security = HTTPBearer()
+
+
+def validate_username(username: str) -> None:
+    """
+    Validate username requirements.
+    
+    Requirements:
+    - Only alphanumeric characters (letters and numbers)
+    - Must not start with a numeric digit
+    - Minimum 3 characters
+    
+    Raises HTTPException if username doesn't meet requirements.
+    """
+    if len(username) < 3:
+        raise HTTPException(
+            status_code=400,
+            detail="Username must be at least 3 characters long"
+        )
+    
+    if not re.match(r'^[a-zA-Z][a-zA-Z0-9]*$', username):
+        raise HTTPException(
+            status_code=400,
+            detail="Username must start with a letter and contain only letters and numbers"
+        )
+
+
+def validate_password_strength(password: str) -> None:
+    
+    if len(password) < 8:
+        raise HTTPException(
+            status_code=400, 
+            detail="Password must be at least 8 characters long"
+        )
+    
+    if not re.search(r'[A-Z]', password):
+        raise HTTPException(
+            status_code=400, 
+            detail="Password must contain at least one uppercase letter"
+        )
+    
+    if not re.search(r'[0-9]', password):
+        raise HTTPException(
+            status_code=400, 
+            detail="Password must contain at least one numeric digit"
+        )
 
 
 def hash_password(password: str) -> str:
@@ -107,10 +153,16 @@ def require_permission(permission: str):
 
 
 def register_user(db: Session, username: str, password: str, role: UserRole = UserRole.USER) -> User:
-    """Register a new user with hashed password."""
+    """Register a new user with username and password validation."""
     existing_user = db.query(User).filter(User.username == username).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already exists")
+    
+    # Validate username
+    validate_username(username)
+    
+    # Validate password strength
+    validate_password_strength(password)
     
     password_hash = hash_password(password)
     new_user = User(
@@ -126,6 +178,13 @@ def register_user(db: Session, username: str, password: str, role: UserRole = Us
 
 def authenticate_user(db: Session, username: str, password: str) -> Optional[User]:
     """Authenticate user credentials and return user if valid."""
+    # Validate password format before attempting authentication
+    try:
+        validate_password_strength(password)
+    except HTTPException:
+        # If password doesn't meet strength requirements, authentication fails
+        return None
+    
     user = db.query(User).filter(User.username == username).first()
     if not user:
         return None

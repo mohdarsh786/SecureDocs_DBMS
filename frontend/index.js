@@ -32,8 +32,14 @@ function renderLoginForm() {
     authForm.innerHTML = `
         <div class="form-container">
             <h2>Login</h2>
-            <input type="text" id="username" placeholder="Username" />
-            <input type="password" id="password" placeholder="Password" />
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Username" />
+                <span class="error-message" id="username-error"></span>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" />
+                <span class="error-message" id="password-error"></span>
+            </div>
             <button onclick="login()">Login</button>
             <p>Don't have an account? <a href="#" onclick="renderRegisterForm()">Register</a></p>
         </div>
@@ -45,8 +51,30 @@ function renderRegisterForm() {
     authForm.innerHTML = `
         <div class="form-container">
             <h2>Register</h2>
-            <input type="text" id="username" placeholder="Username" />
-            <input type="password" id="password" placeholder="Password" />
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Username" oninput="validateUsernameInput()" />
+                <span class="error-message" id="username-error"></span>
+            </div>
+            <div class="password-requirements">
+                <small>Username must:</small>
+                <ul>
+                    <li>Start with a letter</li>
+                    <li>Contain only letters and numbers</li>
+                    <li>Be at least 3 characters long</li>
+                </ul>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" oninput="validatePasswordInput()" />
+                <span class="error-message" id="password-error"></span>
+            </div>
+            <div class="password-requirements">
+                <small>Password must:</small>
+                <ul>
+                    <li>Be at least 8 characters long</li>
+                    <li>Contain at least one uppercase letter</li>
+                    <li>Contain at least one number</li>
+                </ul>
+            </div>
             <select id="role">
                 <option value="User">Standard User</option>
                 <option value="Manager">Manager</option>
@@ -56,6 +84,76 @@ function renderRegisterForm() {
             <p>Already have an account? <a href="#" onclick="renderLoginForm()">Login</a></p>
         </div>
     `;
+}
+
+function validateUsernameInput() {
+    const username = document.getElementById('username').value;
+    const usernameError = document.getElementById('username-error');
+    const usernameInput = document.getElementById('username');
+    
+    if (username.length === 0) {
+        usernameInput.classList.remove('error');
+        usernameError.textContent = '';
+        return false;
+    }
+    
+    if (username.length < 3) {
+        usernameInput.classList.add('error');
+        usernameError.textContent = 'At least 3 characters';
+        return false;
+    }
+    
+    if (!/^[a-zA-Z]/.test(username)) {
+        usernameInput.classList.add('error');
+        usernameError.textContent = 'Must start with a letter';
+        return false;
+    }
+    
+    if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(username)) {
+        usernameInput.classList.add('error');
+        usernameError.textContent = 'Only letters and numbers';
+        return false;
+    }
+    
+    usernameInput.classList.remove('error');
+    usernameError.textContent = '';
+    return true;
+}
+
+function validatePasswordInput() {
+    const password = document.getElementById('password').value;
+    const passwordError = document.getElementById('password-error');
+    const passwordInput = document.getElementById('password');
+    
+    if (password.length === 0) {
+        passwordInput.classList.remove('error');
+        passwordError.textContent = '';
+        return false;
+    }
+    
+    const errors = [];
+    
+    if (password.length < 8) {
+        errors.push('8+ chars');
+    }
+    
+    if (!/[A-Z]/.test(password)) {
+        errors.push('1 uppercase');
+    }
+    
+    if (!/[0-9]/.test(password)) {
+        errors.push('1 number');
+    }
+    
+    if (errors.length > 0) {
+        passwordInput.classList.add('error');
+        passwordError.textContent = 'Need: ' + errors.join(', ');
+        return false;
+    }
+    
+    passwordInput.classList.remove('error');
+    passwordError.textContent = '';
+    return true;
 }
 
 async function login() {
@@ -87,6 +185,15 @@ async function register() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const role = document.getElementById('role').value;
+
+    // Validate inputs before submitting
+    const isUsernameValid = validateUsernameInput();
+    const isPasswordValid = validatePasswordInput();
+    
+    if (!isUsernameValid || !isPasswordValid) {
+        alert('Please fix the validation errors before registering');
+        return;
+    }
 
     try {
         const response = await fetch(`${API_BASE_URL}/register`, {
