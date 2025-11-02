@@ -189,6 +189,78 @@ button:hover {
     margin-bottom: 20px;
 }
 
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: transparent;
+    color: #667eea;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.tab-btn:hover {
+    background: #f8f9fa;
+    color: #5568d3;
+}
+
+.tab-btn.active {
+    border-bottom-color: #667eea;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.permissions-header {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.permission-selector {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.permission-selector label {
+    font-weight: 600;
+    color: #333;
+}
+
+.permission-selector select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    min-width: 300px;
+}
+
+#permission-details h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+p.error {
+    color: #dc3545;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 20px 0;
+    font-weight: 500;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;

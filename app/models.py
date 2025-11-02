@@ -57,6 +57,24 @@ class File(Base):
     
     owner = relationship("User", back_populates="files")
     audit_logs = relationship("AuditLog", back_populates="file")
+    permissions = relationship("FilePermission", back_populates="file")
+
+
+class FilePermission(Base):
+    """File permission table for granular access control."""
+    __tablename__ = 'file_permissions'
+    
+    permission_id = Column(Integer, primary_key=True, autoincrement=True)
+    file_id = Column(Integer, ForeignKey('files.file_id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    can_view = Column(Integer, nullable=False, default=0)
+    can_download = Column(Integer, nullable=False, default=0)
+    granted_by = Column(Integer, ForeignKey('users.user_id'), nullable=False)
+    granted_at = Column(TIMESTAMP, nullable=False, default=datetime.utcnow)
+    
+    file = relationship("File", back_populates="permissions")
+    user = relationship("User", foreign_keys=[user_id])
+    granter = relationship("User", foreign_keys=[granted_by])
 
 
 class AuditLog(Base):

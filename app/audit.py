@@ -11,14 +11,17 @@ from sqlalchemy.orm import Session
 from app.models import AuditLog, User, File
 
 
-def log_action(db: Session, user_id: int, action: str, file_id: Optional[int], ip_address: str) -> AuditLog:
+def log_action(db: Session, user_id: int, action: str, file_id: Optional[int], ip_address: str, details: Optional[str] = None) -> AuditLog:
     """
     Create an append-only audit log entry.
     Generates signature hash for immutability verification.
     """
     timestamp = datetime.utcnow()
     
+    # Include details in signature if provided
     signature_data = f"{user_id}:{action}:{file_id}:{ip_address}:{timestamp.isoformat()}"
+    if details:
+        signature_data += f":{details}"
     signature_hash = hashlib.sha256(signature_data.encode('utf-8')).hexdigest()
     
     log_entry = AuditLog(

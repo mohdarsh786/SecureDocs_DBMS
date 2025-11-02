@@ -43,8 +43,29 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     INDEX idx_audit_logs_action (action)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Create default admin user (password: admin123)
--- Hash generated using bcrypt with default rounds
+-- Create file_permissions table for access control
+CREATE TABLE IF NOT EXISTS file_permissions (
+    permission_id INT AUTO_INCREMENT PRIMARY KEY,
+    file_id INT NOT NULL,
+    user_id INT NOT NULL,
+    can_view TINYINT NOT NULL DEFAULT 0,
+    can_download TINYINT NOT NULL DEFAULT 0,
+    granted_by INT NOT NULL,
+    granted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (file_id) REFERENCES files(file_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (granted_by) REFERENCES users(user_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_file_user (file_id, user_id),
+    INDEX idx_file_permissions_file (file_id),
+    INDEX idx_file_permissions_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Create default admin users
+-- Username: Arsh, Password: Password123##
+-- Username: Yuvraj, Password: Password123##
+-- Hashes generated using bcrypt with default rounds
 INSERT INTO users (username, password_hash, role)
-VALUES ('admin', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYqJ3Z8b5qu', 'Admin')
+VALUES 
+    ('Arsh', '$2b$12$tt2kxRED7zva90x8.p2YyO38Q3dlWGhwN5Ga4VZU0d/LzPlo8l3e6', 'Admin'),
+    ('Yuvraj', '$2b$12$tt2kxRED7zva90x8.p2YyO38Q3dlWGhwN5Ga4VZU0d/LzPlo8l3e6', 'Admin')
 ON DUPLICATE KEY UPDATE username=username;
